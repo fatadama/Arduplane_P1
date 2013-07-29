@@ -72,6 +72,12 @@
 
 #include <AP_Declination.h> // ArduPilot Mega Declination Helper Library
 
+//VSCL include the wire library for I2C communication
+#include<Wire.h>
+#include "FHP.h" //include the FHP class object
+
+FHP vscl_fhp();//create five hole probe object
+
 ////////////////////////////////////////////////////////////////////////////////
 // Serial ports
 ////////////////////////////////////////////////////////////////////////////////
@@ -682,6 +688,7 @@ AP_Mount camera_mount2(&current_loc, g_gps, &ahrs, 1);
 void setup() {
     memcheck_init();
     init_ardupilot();
+	Wire.begin();//vscl initialize Wire library for five hole probe I2C communication
 }
 
 void loop()
@@ -760,6 +767,9 @@ static void fast_loop()
 #endif
 
     ahrs.update();
+	
+	//vscl update FHP readings
+	vscl_fhp.fhp_read();
 
     // uses the yaw from the DCM to give more accurate turns
     calc_bearing_error();
