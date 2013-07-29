@@ -162,6 +162,8 @@ enum gcs_severity {
 #define LOG_CMD_MSG                             0x08
 #define LOG_CURRENT_MSG                 0x09
 #define LOG_STARTUP_MSG                 0x0A
+//vscl five hole probe log:
+#define LOG_FHP_MSG							0x10
 #define TYPE_AIRSTART_MSG               0x00
 #define TYPE_GROUNDSTART_MSG    0x01
 #define MAX_NUM_LOGS                    100

@@ -371,6 +371,42 @@ static void Log_Write_Raw()
     DataFlash.WriteByte(END_BYTE);
 }
  #endif
+ 
+ //VSCL: write five hole probe data to flash memory
+ static void Log_Write_Fhp()
+ {
+	//write checksum headers
+	DataFlash.WriteByte(HEAD_BYTE1);
+	DataFlash.WriteByte(HEAD_BYTE2);
+	//write message identifier
+	DataFlash.WriteByte(LOG_FHP_MSG);
+	//write the four pressure values
+	DataFlash.WriteInt(vscl_fhp.access(0));
+	DataFlash.WriteInt(vscl_fhp.access(1));
+	DataFlash.WriteInt(vscl_fhp.access(2));
+	DataFlash.WriteInt(vscl_fhp.access(3));
+	//write the temperature value
+//what should be the precision used here?
+	DataFlash.WriteLong(int(100*vscl_fhp.fhp_temp_humid(0)));
+	//write the humdity
+	DataFlash.WriteLong(int(100*vscl_fhp.fhp_temp_humid(1)));
+	//write the end byte:
+	DataFlash.WriteByte(END_BYTE);
+ }
+ 
+static void Log_Read_Fhp()
+{
+	int pres[4];
+	//read values
+	pres[0] = DataFlash.ReadInt();
+	pres[1] = DataFlash.ReadInt();
+	pres[2] = DataFlash.ReadInt();
+	pres[3] = DataFlash.ReadInt();
+	long temp = DataFlash.ReadLong();
+	long humid = DataFlash.ReadLong();
+	//print to serial
+	Serial.printf_P(PSTR("FHP: %d, %d, %d, %d, %6.6f, %6.6f\n"),pres[0],pres[1],pres[2],pres[3],float(temp)/100.0,float(humid)/100.0);
+}
 
 static void Log_Write_Current()
 {
@@ -621,6 +657,9 @@ static int16_t Log_Read_Process(int16_t start_page, int16_t end_page)
                                 }else if(data == LOG_STARTUP_MSG) {
                                     Log_Read_Startup();
                                     log_step++;
+								}else if(data == LOG_FHP_MSG) {
+									Log_Read_Fhp();//vscl read file hole probe data
+									log_step++
                                 }else {
                                     if(data == LOG_GPS_MSG) {
                                         Log_Read_GPS();
