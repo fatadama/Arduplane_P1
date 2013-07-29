@@ -27,3 +27,7 @@
  *
  */
 
+//VSCL: enable five hope probe data logging
+#ifndef LOG_FHP
+	#define LOG_FHP	ENABLED
+#endif

@@ -780,6 +780,9 @@ static void fast_loop()
 
     if (g.log_bitmask & MASK_LOG_RAW)
         Log_Write_Raw();
+	//VSCL add logging for FHP data:
+	if (g.log_bitmask & MASK_LOG_FHP)
+		Log_Write_Fhp();
 #endif
 
     // inertial navigation

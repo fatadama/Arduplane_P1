@@ -737,6 +737,9 @@
 #ifndef LOG_CUR
  # define LOG_CUR                        DISABLED
 #endif
+#ifndef LOG_FHP
+	#define LOG FHP	DISABLED
+#endif
 
 // calculate the default log_bitmask
 #define LOGBIT(_s)      (LOG_ ## _s ? MASK_LOG_ ## _s : 0)
@@ -751,7 +754,8 @@
     LOGBIT(MODE)                    | \
     LOGBIT(RAW)                             | \
     LOGBIT(CMD)                             | \
-    LOGBIT(CUR)
+    LOGBIT(CUR)								| \
+	LOGBIT(FHP)
 
 
 //////////////////////////////////////////////////////////////////////////////
