@@ -31,3 +31,9 @@
 #ifndef LOG_FHP
 	#define LOG_FHP	ENABLED
 #endif
+#ifndef LOG_CTRL
+  #define LOG_CTRL ENABLED
+#endif
+#ifndef DEFAULT_LOG_BITMASK
+  #define DEFAULT_LOG_BITMASK 1100000101001110
+#endif

@@ -5,13 +5,13 @@
 
 #include <npa700.h>  //pressure sensor library  
 #include <HIH6130.h>  //humidity sensor library
-#include <Wire.h>
+#include <I2C.h>
 
 class FHP {
 	public:
 		FHP();//constructor
 		void fhp_read();//read values from sensors
-		int fhp_access(int);//return the current value of one pressure
+		double fhp_access(int);//return the current value of one pressure
 		double fhp_temp_humid(bool);//return the current value of temperature (bool = 0) or humidity (bool = 1)
 	private:
 		npa700 pSensor0;//pressure sensors
@@ -19,7 +19,7 @@ class FHP {
 		npa700 pSensor2;
 		npa700 pSensor3;
 		HIH6130 hSensor;//humidity sensor
-		int pressure[4]; //array of size 4 to store all 4 pressure values
+		double pressure[4]; //array of size 4 to store all 4 pressure values
 		double humidity;  //humidity sensor reading
 		double temperature;
 };

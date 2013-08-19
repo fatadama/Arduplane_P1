@@ -1,23 +1,24 @@
 //FHP.cpp - function definitions for five hole probe object
 
+#include<I2C.h>
 #include "FHP.h"
 
 FHP::FHP()
 {
 //initialize pressure sensor addresses
-	pSensor0=npa700(0x30);
-	pSensor1=npa700(0x31);
-	pSensor2=npa700(0x32);
-	pSensor3=npa700(0x33);
-//temperature/humidity sensor address	
-	hSensor=HIH6130(0x27);
+pSensor0 = npa700(0x30);
+pSensor1 = npa700(0x31);
+pSensor2 = npa700(0x32);
+pSensor3 = npa700(0x33);
+//temperature/humidity sensor address
+hSensor = HIH6130(0x27);	
 //initialize readings to zero
 	humidity = 0;
 	temperature = 0;
-//do I need a Wire.begin() here? I don't think so but not 100%
+//initialize pmin to the default,
 }
 
-FHP::fhp_read()
+void FHP::fhp_read()
 {
 //read values from all sensors:
 	pSensor0.read();
@@ -27,7 +28,7 @@ FHP::fhp_read()
 	hSensor.read();
 }
 
-int FHP::fhp_access(int i)
+double FHP::fhp_access(int i)
 {
 	//access the values of one of the pressure sensors
 	switch (i)
