@@ -31,9 +31,14 @@
 #ifndef LOG_FHP
 	#define LOG_FHP	ENABLED
 #endif
+//enable controls logging for SYSID purposes
 #ifndef LOG_CTRL
   #define LOG_CTRL ENABLED
 #endif
 #ifndef DEFAULT_LOG_BITMASK
   #define DEFAULT_LOG_BITMASK 1100000101001110
+#endif
+//enable airspeed sensor - assumed to be five-hole probe
+#ifndef AIRSPEED_SENSOR
+	#define AIRSPEED_SENSOR ENABLED
 #endif

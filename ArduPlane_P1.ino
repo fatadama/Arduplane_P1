@@ -76,6 +76,7 @@
 #include <npa700.h>  //pressure sensor library  
 #include <HIH6130.h>  //humidity sensor library
 #include "FHP.h" //include the FHP class object
+#include <FHP_Airspeed.h> //calculation of airspeed library
 
 FHP vscl_fhp;//create five hole probe object
 
@@ -477,7 +478,9 @@ static float current_total1;
 ////////////////////////////////////////////////////////////////////////////////
 // Airspeed Sensors
 ////////////////////////////////////////////////////////////////////////////////
-AP_Airspeed airspeed(&pitot_analog_source);
+//AP_Airspeed airspeed(&pitot_analog_source);
+//VSCL use FHP airspeed calculation
+FHP_Airspeed airspeed(&vscl_fhp);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Altitude Sensor variables
