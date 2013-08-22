@@ -76,7 +76,7 @@
 #include <npa700.h>  //pressure sensor library  
 #include <HIH6130.h>  //humidity sensor library
 #include "FHP.h" //include the FHP class object
-#include <FHP_Airspeed.h> //calculation of airspeed library
+#include "FHP_Airspeed.h" //calculation of airspeed library
 
 FHP vscl_fhp;//create five hole probe object
 
