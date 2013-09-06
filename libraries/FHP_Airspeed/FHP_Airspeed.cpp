@@ -32,34 +32,89 @@ const AP_Param::GroupInfo FHP_Airspeed::var_info[] PROGMEM = {
 FHP_Airspeed::FHP_Airspeed(FHP* source)
 {
 	_source = source;
+	_qbar_offset = 0;
+	_p23_offset = 0;
+	_p45_offset = 0;
 };
 
 void FHP_Airspeed::calibrate(void (*callback)(unsigned long t))
 {
-	float sum = 0;
-    uint8_t c;
+    uint16_t c;
     if (!_enable) {
         return;
     }
-	//read FHP values
-	read();
-	//assume that FHP calibration is better than anything we can do on the ground	
+	
+	double Qbar=0,p23=0,p45=0;
+	int32_t offset1 = 0,offset2 = 0,offset3 = 0;
+	
+	for(c = 0;c<1000;c++)
+	{
+		_source->fhp_read();
+		//read pressure sensor values
+		Qbar = _source->fhp_access(2);//P1-P6 in Torr
+		p23 = _source->fhp_access(3);//p2-p3 in Torr
+		p45 = _source->fhp_access(1);//p4 - p5 in torr
+		//add to values for calibration
+		offset1+=1e5*Qbar;
+		offset2+=1e5*p23;
+		offset3+=1e5*p45;
+	}
+	offset1/=c;
+	offset2/=c;
+	offset3/=c;
+	//set the offsets IN PSI
+	_qbar_offset = 1e-5*offset1;
+	_p23_offset = 1e-5*offset2;
+	_p45_offset = 1e-5*offset3;
+}
+
+void FHP_Airspeed::calibrate()
+{
+//calibrate the differential pressure sensors to zero offset
+    uint16_t c;
+    if (!_enable) {
+        //return;
+    }
+	
+	double Qbar=0,p23=0,p45=0;
+	int32_t offset1 = 0,offset2 = 0,offset3 = 0;
+	
+	for(c = 0;c<1000;c++)
+	{
+		_source->fhp_read();
+		//read pressure sensor values
+		Qbar = _source->fhp_access(2);//P1-P6 in psi
+		p23 = _source->fhp_access(3);//p2-p3 in psi
+		p45 = _source->fhp_access(1);//p4 - p5 in psi
+		//add to values for calibration
+		offset1+=1e5*Qbar;
+		offset2+=1e5*p23;
+		offset3+=1e5*p45;
+	}
+	//average values
+	offset1/=c;
+	offset2/=c;
+	offset3/=c;
+	//set the offsets IN PSI
+	_qbar_offset = 1e-5*offset1;
+	_p23_offset = 1e-5*offset2;
+	_p45_offset = 1e-5*offset3;
 }
 
 void FHP_Airspeed::read()
 {
 	if (!_enable) {
-        return;
+        //return;
     }
 	
 	//read psensor2 from _source
 	int i = 0;
-	float Qbar, p23, p45, C_beta, C_alpha, Beta_deg=0, Alpha_deg=0, C_q=0, QQ=0;
+	double Qbar, p23, p45, C_beta, C_alpha, Beta_deg=0, Alpha_deg=0, C_q=0, QQ=0;
 	
 	//read FHP values
-	Qbar = -51.72*(_source->fhp_access(2));//P1-P6 in Torr
-	p23 = 51.72 *(_source->fhp_access(3));//p2-p3 in Torr
-	p45 = 51.72 *(_source->fhp_access(1));//p4 - p5 in torr
+	Qbar = -double(51.72)*(_source->fhp_access(2)-_qbar_offset);//P1-P6 in Torr
+	p23 = double(51.72) *(_source->fhp_access(3)-_p23_offset);//p2-p3 in Torr
+	p45 = double(51.72) *(_source->fhp_access(1)-_p45_offset);//p4 - p5 in torr
 	
 	//compute sideslip and angle-of-attack coefficients
 	C_beta = p23/Qbar;
@@ -68,29 +123,38 @@ void FHP_Airspeed::read()
 	//compute angle-of-attack and sideslip
 	Beta_deg = 0;
 	Alpha_deg = 0;
-	for (i = 0;i<5;i++)
+	Beta_deg+=C_b[0]+C_b[1]*C_beta;
+	Alpha_deg+=C_a[0]+C_a[1]*C_alpha;
+	for (i = 2;i<5;i++)
 	{
-		Beta_deg+=C_b[i]*pow(C_beta,float(i));
-		Alpha_deg+=C_a[i]*pow(C_alpha,float(i));
+		Beta_deg+=C_b[i]*pow(C_beta,1.0*i);
+		Alpha_deg+=C_a[i]*pow(C_alpha,1.0*i);
 	}
 	//compute dynamic pressure coefficient
 	C_q = 0;
 	if(fabs(Beta_deg)>fabs(Alpha_deg))
 	{
-		for(i = 0;i<5;i++)
+		C_q+=Cq_b[0]+Cq_b[1]*C_beta;
+		for(i = 2;i<5;i++)
 		{
-			C_q+=Cq_b[i]*pow(C_beta,float(i));
+			C_q+=Cq_b[i]*pow(C_beta,1.0*i);
 		}
 	}
 	else
 	{
-		for(i = 0;i<5;i++)
+		C_q+=Cq_a[0]+Cq_a[1]*C_alpha;
+		for(i = 2;i<5;i++)
 		{
-			C_q+=Cq_a[i]*pow(C_alpha,float(i));
+			C_q+=Cq_a[i]*pow(C_alpha,1.0*i);
 		}
 	}
+	
 	//compute dynamic pressure
 	QQ = C_q/Qbar;
+	
+	//store angles
+	_alpha = Alpha_deg;
+	_beta = Beta_deg;
 	
 	//compute airspeed
 	if(QQ>0)
@@ -103,14 +167,24 @@ void FHP_Airspeed::read()
 	}
 }
 
-float FHP_Airspeed::get_airspeed()
+double FHP_Airspeed::get_airspeed()
 {
 	return _airspeed;
 }
 
-float FHP_Airspeed::get_airspeed_cm()
+double FHP_Airspeed::get_alpha()
 {
-	return _airspeed*100;
+	return _alpha;
+}
+
+double FHP_Airspeed::get_beta()
+{
+	return _beta;
+}
+
+int16_t FHP_Airspeed::get_airspeed_cm()
+{
+	return int16_t(_airspeed*100);
 }
 
 bool FHP_Airspeed::use()
