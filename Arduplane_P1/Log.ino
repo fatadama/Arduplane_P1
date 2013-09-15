@@ -223,6 +223,15 @@ static void Log_Write_Attitude(int16_t log_roll, int16_t log_pitch, uint16_t log
     DataFlash.WriteInt(log_pitch);
     DataFlash.WriteInt(log_yaw);
     DataFlash.WriteByte(END_BYTE);
+	
+	Serial.printf("\n%i,%i,%i,%i,%i,%i,%i\n",
+          HEAD_BYTE1,
+          HEAD_BYTE2,
+          LOG_ATTITUDE_MSG,
+		  log_roll,
+          log_pitch,
+          log_yaw,
+          END_BYTE);
 }
 
 // Write a performance monitoring packet. Total length : 19 bytes
@@ -246,6 +255,25 @@ static void Log_Write_Performance()
     DataFlash.WriteInt((int)(ahrs.get_gyro_drift().z * 1000));
     DataFlash.WriteInt(pmTest1);
     DataFlash.WriteByte(END_BYTE);
+    
+    Serial.printf("\n%i,%i,%i,%li,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i\n",
+          HEAD_BYTE1,
+          HEAD_BYTE2,
+          LOG_PERFORMANCE_MSG,
+          millis()- perf_mon_timer,
+          (int16_t)mainLoop_count,
+          G_Dt_max,
+          0,
+          imu.adc_constraints,
+          ahrs.renorm_range_count,
+          ahrs.renorm_blowup_count,
+          gps_fix_count,
+          1,
+          (int)(ahrs.get_gyro_drift().x * 1000),
+          (int)(ahrs.get_gyro_drift().y * 1000),
+          (int)(ahrs.get_gyro_drift().z * 1000),
+          pmTest1,
+          END_BYTE);
 }
  #endif
 
@@ -351,6 +379,22 @@ static void Log_Write_GPS(      int32_t log_Time, int32_t log_Lattitude, int32_t
     DataFlash.WriteLong(log_Ground_Speed);
     DataFlash.WriteLong(log_Ground_Course);
     DataFlash.WriteByte(END_BYTE);
+	
+	Serial.printf("\n%i,%i,%i,%li,%i,%i,%li,%li,%i,%li,%li,%li,%li,%i\n",
+          HEAD_BYTE1,
+          HEAD_BYTE2,
+          LOG_GPS_MSG,
+		  log_Time,
+          log_Fix,
+          log_NumSats,
+		  log_Lattitude,
+		  log_Longitude,
+		  0,
+		  log_mix_alt,
+		  log_gps_alt,
+		  log_Ground_Speed,
+		  log_Ground_Course,
+          END_BYTE);
 }
 
 // Write an raw accel/gyro data packet. Total length : 28 bytes
@@ -373,6 +417,18 @@ static void Log_Write_Raw()
     DataFlash.WriteLong((long)accel.z);
 
     DataFlash.WriteByte(END_BYTE);
+	
+	Serial.printf("\n%i,%i,%i,%li,%li,%li,%li,%li,%li,%i\n",
+          HEAD_BYTE1,
+          HEAD_BYTE2,
+          LOG_RAW_MSG,
+		  (long)gyro.x,
+          (long)gyro.y,
+          (long)gyro.z,
+		  (long)accel.x,
+		  (long)accel.y,
+		  (long)accel.z,
+          END_BYTE);
 }
  #endif
  
@@ -396,7 +452,19 @@ static void Log_Write_Raw()
 	DataFlash.WriteInt(int(100*vscl_fhp.fhp_temp_humid(1)));
 	//write the end byte:
 	DataFlash.WriteByte(END_BYTE);
- }
+
+        Serial.printf("\n%i,%i,%i,%li,%li,%li,%li,%i,%i,%i\n",
+          HEAD_BYTE1,
+          HEAD_BYTE2,
+          LOG_FHP_MSG,
+		  long(100000.*vscl_fhp.fhp_access(0)),
+          long(100000.*vscl_fhp.fhp_access(1)),
+          long(100000.*vscl_fhp.fhp_access(2)),
+          long(100000.*vscl_fhp.fhp_access(3)),
+          int(100.*vscl_fhp.fhp_temp_humid(0)),
+          int(100.*vscl_fhp.fhp_temp_humid(1)),
+          END_BYTE);
+      }
  
 static void Log_Read_Fhp()
 {
@@ -430,6 +498,16 @@ static void Log_Read_Fhp()
 	DataFlash.WriteInt(g.channel_rudder.radio_out);
 	//write the end byte:
 	DataFlash.WriteByte(END_BYTE);
+	
+	Serial.printf("\n%i,%i,%i,%i,%i,%i,%i,%i\n",
+          HEAD_BYTE1,
+          HEAD_BYTE2,
+          LOG_CTRL_MSG,
+		  g.channel_pitch.radio_out,
+          g.channel_throttle.radio_out,
+          g.channel_roll.radio_out,
+          g.channel_rudder.radio_out,
+          END_BYTE);
  }
  
 static void Log_Read_Ctrl()
