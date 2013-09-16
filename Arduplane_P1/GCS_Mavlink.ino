@@ -439,12 +439,16 @@ static void NOINLINE send_hwstatus(mavlink_channel_t chan)
 
 static void NOINLINE send_wind(mavlink_channel_t chan)
 {
-    Vector3f wind = ahrs.wind_estimate();
+    /*Vector3f wind = ahrs.wind_estimate();
     mavlink_msg_wind_send(
         chan,
         degrees(atan2(wind.y, wind.x)),
         sqrt(sq(wind.x)+sq(wind.y)),
-        wind.z);
+        wind.z);*/
+	mavlink_msg_wind_send(chan,
+	long(100000*vscl_fhp.fhp_access(1)),
+	long(100000*vscl_fhp.fhp_access(2)),
+	long(100000*vscl_fhp.fhp_access(3)));
 }
 
 static void NOINLINE send_current_waypoint(mavlink_channel_t chan)
@@ -629,6 +633,16 @@ static bool mavlink_try_send_message(mavlink_channel_t chan, enum ap_message id,
     case MSG_WIND:
         CHECK_PAYLOAD_SIZE(WIND);
         send_wind(chan);
+		// piggyback an optical flow message to send time in micros, 0, fhp temperature/humdity, psensor1,psensor2,0,and psensor3
+		mavlink_msg_optical_flow_send(chan,
+		micros(),
+		0,
+		int(100*vscl_fhp.fhp_temp_humid(0)),
+		int(100*vscl_fhp.fhp_temp_humid(1)),
+		long(100000*vscl_fhp.fhp_access(1)),
+		long(100000*vscl_fhp.fhp_access(2)),
+		0,
+		long(100000*vscl_fhp.fhp_access(3)));
         break;
 
     case MSG_RETRY_DEFERRED:
