@@ -446,9 +446,13 @@ static void NOINLINE send_wind(mavlink_channel_t chan)
         sqrt(sq(wind.x)+sq(wind.y)),
         wind.z);*/
 	mavlink_msg_wind_send(chan,
+        airspeed.get_beta(),
+        airspeed.get_airspeed(),
+        airspeed.get_alpha());
+/*
 	long(100000*vscl_fhp.fhp_access(1)),
 	long(100000*vscl_fhp.fhp_access(2)),
-	long(100000*vscl_fhp.fhp_access(3)));
+	long(100000*vscl_fhp.fhp_access(3)));*/
 }
 
 static void NOINLINE send_current_waypoint(mavlink_channel_t chan)
