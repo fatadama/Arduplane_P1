@@ -224,15 +224,15 @@ static void Log_Write_Attitude(int16_t log_roll, int16_t log_pitch, uint16_t log
     DataFlash.WriteInt(log_yaw);
     DataFlash.WriteByte(END_BYTE);
 	
-	gcs_send_message(MSG_ATTITUDE);//sends Euler angles and angular rates
-	/*Serial.printf("\n%i,%i,%i,%i,%i,%i,%i\n",
+	//sends Euler angles
+	Serial.printf("\n%i,%i,%i,%i,%i,%i,%i\n",
           HEAD_BYTE1,
           HEAD_BYTE2,
           LOG_ATTITUDE_MSG,
 		  log_roll,
           log_pitch,
           log_yaw,
-          END_BYTE);*/
+          END_BYTE);
 }
 
 // Write a performance monitoring packet. Total length : 19 bytes
@@ -381,8 +381,8 @@ static void Log_Write_GPS(      int32_t log_Time, int32_t log_Lattitude, int32_t
     DataFlash.WriteLong(log_Ground_Course);
     DataFlash.WriteByte(END_BYTE);
 	
-	gcs_send_message(MSG_LOCATION);//sends gps position and times
-	/*Serial.printf("\n%i,%i,%i,%li,%i,%i,%li,%li,%i,%li,%li,%li,%li,%i\n",
+	//sends gps position and times
+	Serial.printf("\n%i,%i,%i,%li,%i,%i,%li,%li,%i,%li,%li,%li,%li,%i\n",
           HEAD_BYTE1,
           HEAD_BYTE2,
           LOG_GPS_MSG,
@@ -396,7 +396,7 @@ static void Log_Write_GPS(      int32_t log_Time, int32_t log_Lattitude, int32_t
 		  log_gps_alt,
 		  log_Ground_Speed,
 		  log_Ground_Course,
-          END_BYTE);*/
+          END_BYTE);
 }
 
 // Write an raw accel/gyro data packet. Total length : 28 bytes
@@ -420,8 +420,8 @@ static void Log_Write_Raw()
 
     DataFlash.WriteByte(END_BYTE);
 	
-	gcs_send_message(MSG_RAW_IMU1);//sends raw accelerations and angular rates. I don't think we need this.
-	/*Serial.printf("\n%i,%i,%i,%li,%li,%li,%li,%li,%li,%i\n",
+	//sends raw accelerations and angular rates. I don't think we need this.
+	Serial.printf("\n%i,%i,%i,%li,%li,%li,%li,%li,%li,%i\n",
           HEAD_BYTE1,
           HEAD_BYTE2,
           LOG_RAW_MSG,
@@ -431,7 +431,7 @@ static void Log_Write_Raw()
 		  (long)accel.x,
 		  (long)accel.y,
 		  (long)accel.z,
-          END_BYTE);*/
+          END_BYTE);
 }
  #endif
  
@@ -456,8 +456,8 @@ static void Log_Write_Raw()
 	//write the end byte:
 	DataFlash.WriteByte(END_BYTE);
 
-	gcs_send_message(MSG_WIND);//send psensor1,psensor2,psensor3 values over the wind message. These values are sufficient to get speed, alpha, and beta
-	    /*Serial.printf("\n%i,%i,%i,%li,%li,%li,%li,%i,%i,%i\n",
+	//send psensor1,psensor2,psensor3 values over the wind message. These values are sufficient to get speed, alpha, and beta
+	  Serial.printf("\n%i,%i,%i,%li,%li,%li,%li,%i,%i,%i\n",
           HEAD_BYTE1,
           HEAD_BYTE2,
           LOG_FHP_MSG,
@@ -467,7 +467,7 @@ static void Log_Write_Raw()
           long(100000.*vscl_fhp.fhp_access(3)),
           int(100.*vscl_fhp.fhp_temp_humid(0)),
           int(100.*vscl_fhp.fhp_temp_humid(1)),
-          END_BYTE);*/
+          END_BYTE);
       }
  
 static void Log_Read_Fhp()
@@ -503,8 +503,8 @@ static void Log_Read_Fhp()
 	//write the end byte:
 	DataFlash.WriteByte(END_BYTE);
 	
-	gcs_send_message(MSG_SERVO_OUT);//write an RC_CHANNELS_SCALED message with RC channels 1 through 8 written as 0-100%
-	/*Serial.printf("\n%i,%i,%i,%i,%i,%i,%i,%i\n",
+	//write an RC_CHANNELS_SCALED message with RC channels 1 through 8 written as 0-100%
+	Serial.printf("\n%i,%i,%i,%i,%i,%i,%i,%i\n",
           HEAD_BYTE1,
           HEAD_BYTE2,
           LOG_CTRL_MSG,
@@ -512,7 +512,7 @@ static void Log_Read_Fhp()
           g.channel_throttle.radio_out,
           g.channel_roll.radio_out,
           g.channel_rudder.radio_out,
-          END_BYTE);*/
+          END_BYTE);
  }
  
 static void Log_Read_Ctrl()
